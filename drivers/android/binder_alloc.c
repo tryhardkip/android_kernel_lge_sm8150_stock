@@ -561,7 +561,8 @@ static struct binder_buffer *binder_alloc_new_buf_locked(
 
 out:
 	/* Discard possibly unused new_buffer */
-	kfree(new_buffer);
+	if (new_buffer)
+		kmem_cache_free(binder_buffer_pool, new_buffer);
 	return buffer;
 }
 
@@ -632,7 +633,7 @@ struct binder_buffer *binder_alloc_new_buf(struct binder_alloc *alloc,
 	}
 
 	/* Preallocate the next buffer */
-	next = kzalloc(sizeof(*next), GFP_KERNEL);
+	next = kmem_cache_zalloc(binder_buffer_pool, GFP_KERNEL);
 	if (!next)
 		return ERR_PTR(-ENOMEM);
 
@@ -888,7 +889,7 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
 		INIT_LIST_HEAD(&alloc->pages[i].lru);
 	}
 
-	buffer = kzalloc(sizeof(*buffer), GFP_KERNEL);
+	buffer = kmem_cache_zalloc(binder_buffer_pool, GFP_KERNEL);
 	if (!buffer) {
 		ret = -ENOMEM;
 		failure_string = "alloc buffer struct";
@@ -953,7 +954,7 @@ void binder_alloc_deferred_release(struct binder_alloc *alloc)
 
 		list_del(&buffer->entry);
 		WARN_ON_ONCE(!list_empty(&alloc->buffers));
-		kfree(buffer);
+		kmem_cache_free(binder_buffer_pool, buffer);
 	}
 
 	page_count = 0;

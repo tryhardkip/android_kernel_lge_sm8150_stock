@@ -235,16 +235,17 @@ static inline int is_active_lru(enum lru_list lru)
 	return (lru == LRU_ACTIVE_ANON || lru == LRU_ACTIVE_FILE);
 }
 
-/*
- * This tracks cost of reclaiming one LRU type - file or anon - over
- * the other. As the observed cost of pressure on one type increases,
- * the scan balance in vmscan.c tips toward the other type.
- *
- * The recorded cost for anon is in numer[0], file in numer[1].
- */
-struct lru_cost {
-	unsigned long           numer[2];
-	unsigned long           denom;
+#define ANON_AND_FILE 2
+
+struct zone_reclaim_stat {
+	/*
+	 * The pageout code in vmscan.c keeps track of how many of the
+	 * mem/swap backed and file backed pages are referenced.
+	 * The higher the rotated/scanned ratio, the more valuable
+	 * that cache is.
+	 */
+	unsigned long		recent_rotated[ANON_AND_FILE];
+	unsigned long		recent_scanned[ANON_AND_FILE];
 };
 
 struct lruvec {
@@ -369,6 +370,8 @@ enum zone_type {
 };
 
 #ifndef __GENERATING_BOUNDS_H
+
+#define ASYNC_AND_SYNC 2
 
 struct zone {
 	/* Read-mostly fields */
@@ -498,8 +501,8 @@ struct zone {
 #if defined CONFIG_COMPACTION || defined CONFIG_CMA
 	/* pfn where compaction free scanner should start */
 	unsigned long		compact_cached_free_pfn;
-	/* pfn where async and sync compaction migration scanner should start */
-	unsigned long		compact_cached_migrate_pfn[2];
+	/* pfn where compaction migration scanner should start */
+	unsigned long		compact_cached_migrate_pfn[ASYNC_AND_SYNC];
 #endif
 
 #ifdef CONFIG_COMPACTION

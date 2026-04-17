@@ -318,4 +318,14 @@ static __always_inline void del_page_from_lru_list(struct page *page,
 	update_lru_size(lruvec, page_lru(page), page_zonenum(page),
 			-hpage_nr_pages(page));
 }
+
+#ifdef CONFIG_LRU_GEN
+static inline void update_page_reclaim_stat(struct lruvec *lruvec,
+					    int file, int rotated)
+{
+	/* MGLRU handles this; legacy stub for swap.c */
+}
 #endif
+
+#endif /* LINUX_MM_INLINE_H */
+

@@ -461,8 +461,8 @@ static inline void lru_gen_exit_memcg(struct mem_cgroup *memcg)
 #endif /* CONFIG_LRU_GEN */
 
 struct lru_cost {
-	unsigned long long total_cost;
-	unsigned long long last_cost;
+	unsigned long numer[2];
+	unsigned long denom;
 };
 
 struct lruvec {

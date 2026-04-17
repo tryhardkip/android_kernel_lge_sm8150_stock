@@ -468,6 +468,7 @@ struct lru_cost {
 struct lruvec {
 	struct list_head		lists[NR_LRU_LISTS];
 	struct lru_cost			balance;
+	struct zone_reclaim_stat	reclaim_stat;
 	/* Evictions & activations on the inactive file list */
 	atomic_long_t			inactive_age;
 	/* Refaults at the time of last reclaim cycle */
